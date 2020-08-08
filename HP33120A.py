@@ -125,14 +125,21 @@ class HP33120A(object):
             write.write("#HP/Agilent config file\n")
             write.write("Addres : %s\n"% self.addres)
             write.write("Function:Shape - %s\n"%self.shape)
-            write.write("VOLTage:UNIT - %s\n"%self.Vpp)
+            write.write("Voltage:Unit - %s\n"%self.VU)
+            write.write("Voltage:Amplitude - %s\n"%self.Vpp)
+        print("***********************")
+        print("**CFG file is written**")
+        print("***********************")
 
+    def readCFGfile(self, FileName):
+        with open(FileName, 'r') as read:
+            for line in read:
+                if ""
 
 if __name__ == "__main__":
     address = 'GPIB0::16::INSTR'
     FileName = 'HPcfg.dat'
     HP = HP33120A(address)
-    HP.setDefaultConfig()
-    HP.printConfig()
-    print("cge")
-    print(HP.readVoltUnit())
+    # HP.setDefaultConfig()
+    # HP.printConfig()
+    HP.MakeCFG_file()
