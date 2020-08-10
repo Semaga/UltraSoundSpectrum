@@ -1,15 +1,44 @@
 import pyvisa
-import time
+import glob
+import os
 
 class HP33120A(object):
-    """doc"""
+    """
+    This class using for connecting HP/Agilent 33120A.
+    Methods of this class :
+          setFreq   - input frequency
+                      Sets the output frequency
+          readFREQ  - reads the frequency of an external source or own
+                      :return (float-type) Frequency of an external source or own
+          setShape  - input shape
+                      {SINusoid|SQUare|TRIangle|RAMP|NOISe|DC|}
+                      sets the waveform to be specified
+          readShape - read the waveform
+                      :return (str-type) shape
+          setVPP    - input amplitude
+                      sets the voltage amplitude
+          readVPP   - input parameter are MIN = False, MAX = False
+                      :return (float-type) the voltage amplitude
+          setVoltOffset - input  {<offset>|MINimum|MAXimum}
+          readVoltOffset - return: (float-type) the value of offset
+          setDcycle - set Dcucle using parameter from CFG-file
+          readDcycle - return: Dcycle
+          setVoltUnit - set Volt Unit using parameter from CFG-file
+          readVoltUnit - return: VoltUnit
+          setDefaultConfig -
+          printConfig - print parameters of config
+          MakeCFG_file - write CGF-file with default configuration
+          readCFGfile - input FileName
+                        read CGF-file with user configuration
+
+    """
     def __init__(self, GPIB_adress):
         self.addres    = GPIB_adress
         self.shape     = "SIN"
         self.Vpp       = 1.5
         self.VU        = "VPP"
         self.RM        = pyvisa.ResourceManager() # set resource manager
-
+        self.defaultFN = "HPcfg.dat"
 
 #OUTPUT CONFIGURATION COMMANDS
 
@@ -17,42 +46,54 @@ class HP33120A(object):
         self.RM.open_resource(self.addres).write("SOUR:FREQ %f"%value)
 
     def readFREQ(self):
-        return self.RM.open_resource(self.addres).query("SOUR:FREQ?")
+        return float(self.RM.open_resource(self.addres).query("SOUR:FREQ?"))
 
     def setShape(self, param):
         if str(param) == "SIN":
             self.RM.open_resource(self.addres).write("FUNC:SHAP SIN")
+        elif str(param) == "SQU":
+            self.RM.open_resource(self.addres).write("FUNC:SHAP SQU")
+        elif str(param) == "TRI":
+            self.RM.open_resource(self.addres).write("FUNC:SHAP TRI")
+        elif str(param) == "RAMP":
+            self.RM.open_resource(self.addres).write("FUNC:SHAP RAMP")
+        elif str(param) == "NOIS":
+            self.RM.open_resource(self.addres).write("FUNC:SHAP NOIS")
+        elif str(param) == "DC":
+            self.RM.open_resource(self.addres).write("FUNC:SHAP DC")
+        else:
+            self.RM.open_resource(self.addres).write("FUNC:SHAP SIN")
 
     def readShape(self):
-        return self.RM.open_resource(self.addres).query("FUNC:SHAP?")
+        return str(self.RM.open_resource(self.addres).query("FUNC:SHAP?"))
 
     def setVPP(self, value):
         self.RM.open_resource(self.addres).write("VOLT %f"%(value))
 
     def readVPP(self, MIN = False, MAX = False):
         if MIN:
-            return self.RM.open_resource(self.addres).query("VOLT? MIN")
+            return float(self.RM.open_resource(self.addres).query("VOLT? MIN"))
         elif MAX:
-            return self.RM.open_resource(self.addres).query("VOLT? MAX")
+            return float(self.RM.open_resource(self.addres).query("VOLT? MAX"))
         else:
-            return self.RM.open_resource(self.addres).query("VOLT?")
+            return float(self.RM.open_resource(self.addres).query("VOLT?"))
 
-    def setVoltOffset(self, value):
-        self.RM.open_resource(self.addres).write("VOLT:OFFS %f" % (value))
+    def setVoltOffset(self, offset):
+        self.RM.open_resource(self.addres).write("VOLT:OFFS %f" % (offset))
 
     def readVoltOffset(self, MIN = False, MAX = False):
         if MIN:
-            return self.RM.open_resource(self.addres).query("VOLT:OFFS? MIN")
+            return float(self.RM.open_resource(self.addres).query("VOLT:OFFS? MIN"))
         elif MAX:
-            return self.RM.open_resource(self.addres).query("VOLT:OFFS? MAX")
+            return float(self.RM.open_resource(self.addres).query("VOLT:OFFS? MAX"))
         else:
-            return self.RM.open_resource(self.addres).query("VOLT:OFFS?")
+            return float(self.RM.open_resource(self.addres).query("VOLT:OFFS?"))
 
     def setDcycle(self, value):
         self.RM.open_resource(self.addres).write("PULS:DCYC %f" % (value))
 
     def readDcycle(self):
-        return  self.RM.open_resource(self.addres).query("PULS:DCYC?")
+        return  str(self.RM.open_resource(self.addres).query("PULS:DCYC?"))
 
     def setVoltUnit(self):
         if "VPP" in self.VU:
@@ -67,7 +108,7 @@ class HP33120A(object):
             self.RM.open_resource(self.addres).write("VOLT:UNIT DEF")
 
     def readVoltUnit(self):
-        return self.RM.open_resource(self.addres).query("VOLT:UNIT?")
+        return float(self.RM.open_resource(self.addres).query("VOLT:UNIT?"))
 
     def setOutPutLoad(self, value = "50"):
         if "INF" in value:
@@ -81,11 +122,11 @@ class HP33120A(object):
 
     def readOutPutLoad(self, MIN = False, MAX = False):
         if MIN:
-            return self.RM.open_resource(self.addres).query("OUTP:LOAD? MIN")
+            return str(self.RM.open_resource(self.addres).query("OUTP:LOAD? MIN"))
         elif MAX:
-            return self.RM.open_resource(self.addres).query("OUTP:LOAD? MAX")
+            return str(self.RM.open_resource(self.addres).query("OUTP:LOAD? MAX"))
         else:
-            return self.RM.open_resource(self.addres).query("OUTP:LOAD? MIN")
+            return str(self.RM.open_resource(self.addres).query("OUTP:LOAD? MIN"))
 
     def setOutPutSYNC(self, status = "ON"):
         if "ON" in status:
@@ -96,7 +137,7 @@ class HP33120A(object):
             self.RM.open_resource(self.addres).write("OUTP:SYNC ON")
 
     def readOutPutSYNC(self):
-        return self.RM.open_resource(self.addres).query("OUTP:SYNC?")
+        return str(self.RM.open_resource(self.addres).query("OUTP:SYNC?"))
 
     def setDefaultConfig(self):
         self.setShape("SIN")
@@ -121,6 +162,14 @@ class HP33120A(object):
         # print(len(self.readOutPutSYNC()))
 
     def MakeCFG_file(self):
+        if self.defaultFN in glob.glob('*.dat'):
+            try:
+                # print("File wt/")
+                os.rename(self.defaultFN, "Old_"+self.defaultFN)
+            except:
+                print("File with config is find")
+                pass
+
         with open("HPcfg.dat", 'w') as write:
             write.write("#HP/Agilent config file\n")
             write.write("Addres : %s\n"% self.addres)
@@ -134,7 +183,12 @@ class HP33120A(object):
     def readCFGfile(self, FileName):
         with open(FileName, 'r') as read:
             for line in read:
-                if ""
+                if "Function:Shape - " in line:
+                    self.shape = line.split('-')[1].split()[0]
+                if "Voltage:Unit - " in line:
+                    self.VU = line.split('-')[1].split()[0]
+                if "Voltage:Amplitude - " in line:
+                    self.Vpp = line.split('-')[1].split()[0]
 
 if __name__ == "__main__":
     address = 'GPIB0::16::INSTR'
