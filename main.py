@@ -1,12 +1,20 @@
 import numpy as np
 import pyvisa
-import time
+from datetime import datetime
 from SR844 import Standford
 from HP33120A import HP33120A
-
+import os
+import time
 import testlib
 
 def main():
+    home_dir = os.getcwd()
+    date = str(datetime.today())
+    dirName = str(date).split()[0]
+
+
+
+    # os.chdir(home_dir)
     # constant
     delay = 0.05  # in sec
     Vpp = 1.8
@@ -42,13 +50,8 @@ def main():
     FRmass = np.zeros((Aver), float)
     FRHPmass = np.zeros((Aver), float)
 
-    # MassFreq = [[200000, 200300],
-    #             [394160, 394240],
-    #             [788422, 788460],
-    #             [788350, 788600],
-    #             [329480, 329520]]
 
-    MassFreq = [[2685500, 2685610]]
+    MassFreq = [[2e5, 3e6]]
 
     print("Freq= " + SF.getFreq())
     print("Phase = " + SF.getPhase())
@@ -57,6 +60,17 @@ def main():
     print("R = " + SF.getR())
     print("R[dBm] = " + SF.getRdBm())
     print("Theta = " + SF.getTheta())
+
+    try:
+        os.chdir(home_dir)
+        os.chdir('..')
+        os.mkdir(dirName)
+        os.chdir(dirName)
+    except:
+        os.chdir(home_dir)
+        os.chdir('..')
+        os.chdir(dirName)
+
 
     # prepare SF
     # SF.query("*RST") #Reset to its default configuration
@@ -67,7 +81,7 @@ def main():
 
         NumSteP = (finishFreq - startFreq) / stepF + 1
         freqMass = np.linspace(startFreq, finishFreq, int(NumSteP))
-        fileName = '04082020/spec_from_{}_{}_{}_{}_{}_{}.dat'.format(time.gmtime().tm_hour, time.gmtime().tm_min,
+        fileName = 'spec_from_{}_{}_{}_{}_{}_{}.dat'.format(time.gmtime().tm_hour, time.gmtime().tm_min,
                                                                      time.gmtime().tm_sec, time.gmtime().tm_mday,
                                                                      time.gmtime().tm_mon, time.gmtime().tm_year)
 
@@ -101,4 +115,7 @@ def main():
 
 
 
+start = datetime.now()
 main()
+print("Время работы:")
+print(datetime.now() - start)
