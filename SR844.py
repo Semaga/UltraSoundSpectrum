@@ -358,12 +358,16 @@ class Standford(object):
         return self.SF.open_resource(self.addres).query("OUTP?3")
 
     def getPhase(self):
-        return self.SF.open_resource(self.addres).query("OUTP?5")
+        return self.SF.open_resource(self.addres).query("PHAS?")
 
     def getFreq(self):
         return self.SF.open_resource(self.addres).query("FREQ?")
 
+    def getRdBm(self):
+        return self.SF.open_resource(self.addres).query("OUTP?4")
 
+    def getTheta(self):
+        return self.SF.open_resource(self.addres).query("OUTP?5")
 
 if __name__ == "__main__":
     addres = 'GPIB0::8::INSTR'

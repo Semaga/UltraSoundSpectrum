@@ -1,6 +1,7 @@
 import pyvisa
 import glob
 import os
+import time
 
 class HP33120A(object):
     """
@@ -68,6 +69,7 @@ class HP33120A(object):
         return str(self.RM.open_resource(self.addres).query("FUNC:SHAP?"))
 
     def setVPP(self, value):
+        value = float(value)
         self.RM.open_resource(self.addres).write("VOLT %f"%(value))
 
     def readVPP(self, MIN = False, MAX = False):
@@ -149,6 +151,7 @@ class HP33120A(object):
         # self.setDcycle(0)
         self.setOutPutLoad("50")
         self.setOutPutSYNC("ON")
+        time.sleep(2)
 
     def printConfig(self):
         print("Config of setup")

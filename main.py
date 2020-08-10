@@ -1,6 +1,8 @@
 import numpy as np
 import pyvisa
 import time
+from SR844 import Standford
+from HP33120A import HP33120A
 
 import testlib
 
@@ -19,15 +21,18 @@ def main():
     addresHP = 'GPIB0::15::INSTR'
     addresSF = 'GPIB0::8::INSTR'
 
-    HP = rm.open_resource(addresHP)
-    SF = rm.open_resource(addresSF)
+    SF = Standford(addresSF)
+    HP = HP33120A(addresHP)
 
     # write settings for SF
-    testlib.initSetupSF(SF)
+    # testlib.initSetupSF(SF)
 
+    SF.CFG_file("SFcfg.dat")
+    SF.DefaultConfig()
+    HP.readCFGfile(("HPcfg.dat"))
+    HP.setDefaultConfig()
     # write settings for HP
-    HP.write('VOLT %f' % (1.8))
-    print(HP.query('VOLT?'))
+    print("VPP = %f"%(HP.readVPP()))
 
     # for average data
     Xmass = np.zeros((Aver), float)
@@ -43,15 +48,15 @@ def main():
     #             [788350, 788600],
     #             [329480, 329520]]
 
-    MassFreq = [[2685500, 3e6]]
+    MassFreq = [[2685500, 2685610]]
 
-    # print "Freq = " + SF.query("FREQ?")
-    # print "Phase = " + SF.query("PHAS?")
-    # print "X = " + SF.query("OUTP?1")
-    # print "Y = " + SF.query("OUTP?2")
-    # print "R = " + SF.query("OUTP?3")
-    # print "R[dBm] = " + SF.query("OUTP?4")
-    # print "Theta = " + SF.query("OUTP?5")
+    print("Freq= " + SF.getFreq())
+    print("Phase = " + SF.getPhase())
+    print("X = " + SF.getX())
+    print("Y = " + SF.getY())
+    print("R = " + SF.getR())
+    print("R[dBm] = " + SF.getRdBm())
+    print("Theta = " + SF.getTheta())
 
     # prepare SF
     # SF.query("*RST") #Reset to its default configuration
@@ -73,22 +78,23 @@ def main():
         with open(fileName, 'a') as File:
             File.write("freq(Hz)\tfreq(Hz)HP\tfreq(Hz)SF\tX(V)\tY(V)\tR(V)\tPhase(Deg)\n")
             for i, freq in enumerate(freqMass):
-                HP.write("FREQ %f" % (freq))
+                HP.setFREQ(freq)
                 for j in range(Aver):
-                    Xmass[j] = float(SF.query("OUTP?1"))
-                    Ymass[j] = float(SF.query("OUTP?2"))
-                    Rmass[j] = float(SF.query("OUTP?3"))
-                    PHmass[j] = float(SF.query("OUTP?5"))
-                    FRmass[j] = float(SF.query("FREQ?"))
-                    FRHPmass[j] = float(HP.query("FREQ?"))
+                    Xmass[j] = float(SF.getX())
+                    Ymass[j] = float(SF.getY())
+                    Rmass[j] = float(SF.getR())
+                    PHmass[j] = float(SF.getTheta())
+                    FRmass[j] = float(SF.getFreq())
+                    FRHPmass[j] = float(HP.readFREQ())
                 # print "freq(Hz)\tfreq(Hz)HP\tfreq(Hz)SF\tX(V)\tY(V)\tR(V)\tPhase(Deg)\n"
                 # print("%f\t%f\t%f\t%f\t%f\t%f\t%f\n" % (freq, float(HP.query("FREQ?")),
                 #     np.mean(FRmass), np.mean(Xmass), np.mean(Ymass), np.mean(Rmass),
                 #     np.mean(PHmass)))
-                File.write("%f\t%f\t%f\t%f\t%f\t%f\t%f\n" % (freq, float(HP.query("FREQ?")),
+                File.write("%f\t%f\t%f\t%f\t%f\t%f\t%f\n" % (freq, float(HP.readFREQ()),
                     np.mean(FRmass), np.mean(Xmass), np.mean(Ymass), np.mean(Rmass),
                     np.mean(PHmass)))
         print("\tFinished write date")
+
     print("******************************")
     print("---------Work is done---------")
     print("******************************")
