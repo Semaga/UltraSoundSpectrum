@@ -140,6 +140,4 @@ if __name__ == "__main__":
     address = 'GPIB0::16::INSTR'
     FileName = 'HPcfg.dat'
     HP = HP33120A(address)
-    # HP.setDefaultConfig()
-    # HP.printConfig()
     HP.MakeCFG_file()

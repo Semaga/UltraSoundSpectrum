@@ -1,9 +1,8 @@
 #Standfor config file
-Reset the SR844 to its default configuration(Yes/No) - No
-Clear all status bytes(Yes/No) - Yes
-Set the Reference Mode to External (0) or Internal (1) - 0
-Set the Sensitivity - 30 m
-Set the Close Dynamic Reserve Mode(High/Normal/Low) - Normal
+
+
+
+
 Set the Time Constant - 2 mks
 Set the Time Constant Filter Slope - 6
 Set the Wide Reserve Mode - High
