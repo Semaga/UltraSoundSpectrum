@@ -349,25 +349,25 @@ class Standford(object):
     #Take data
 
     def getX(self):
-        return self.SF.open_resource(self.addres).query("OUTP?1")
+        return float(self.SF.open_resource(self.addres).query("OUTP?1"))
 
     def getY(self):
-        return self.SF.open_resource(self.addres).query("OUTP?2")
+        return float(self.SF.open_resource(self.addres).query("OUTP?2"))
 
     def getR(self):
-        return self.SF.open_resource(self.addres).query("OUTP?3")
+        return float(self.SF.open_resource(self.addres).query("OUTP?3"))
 
     def getPhase(self):
-        return self.SF.open_resource(self.addres).query("PHAS?")
+        return float(self.SF.open_resource(self.addres).query("PHAS?"))
 
     def getFreq(self):
-        return self.SF.open_resource(self.addres).query("FREQ?")
+        return float(self.SF.open_resource(self.addres).query("FREQ?"))
 
     def getRdBm(self):
         return self.SF.open_resource(self.addres).query("OUTP?4")
 
     def getTheta(self):
-        return self.SF.open_resource(self.addres).query("OUTP?5")
+        return float(self.SF.open_resource(self.addres).query("OUTP?5"))
 
 if __name__ == "__main__":
     addres = 'GPIB0::8::INSTR'

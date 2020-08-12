@@ -2,4 +2,4 @@
 Addres : GPIB0::16::INSTR
 Function:Shape - SIN
 Voltage:Unit - VPP
-Voltage:Amplitude - 1.8
+Voltage:Amplitude - 2.5

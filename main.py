@@ -18,7 +18,7 @@ def main():
     # constant
     delay = 0.05  # in sec
     Vpp = 1.8
-    Aver = 1
+    Aver = 2
     stepF = 1
     # startFreq = 0.95e6
     # finishFreq = 1.1e6
@@ -51,15 +51,33 @@ def main():
     FRHPmass = np.zeros((Aver), float)
 
 
-    MassFreq = [[2e5, 3e6]]
+    MassFreq = [[1054550, 1054650],
+                [1066900, 1067000],
+                [1054500, 1054700],
+                [267688, 267900],
+                [394000, 394110],
+                [426218, 426333],
+                [510890, 510998],
+                [788100, 788230],
+                [1576205, 1576335],
+                [2342970, 2343080],
+                [1446970, 1447090],
+                [200125, 200240],
+                [394130, 394270],
+                [788370, 788510],
+                [394140, 394260],
+                [788380, 788510]
+                ]
 
-    print("Freq= " + SF.getFreq())
-    print("Phase = " + SF.getPhase())
-    print("X = " + SF.getX())
-    print("Y = " + SF.getY())
-    print("R = " + SF.getR())
-    print("R[dBm] = " + SF.getRdBm())
-    print("Theta = " + SF.getTheta())
+    # MassFreq = [[1054550, 1054650]]
+
+    # print("Freq= " + SF.getFreq())
+    # print("Phase = " + SF.getPhase())
+    # print("X = " + SF.getX())
+    # print("Y = " + SF.getY())
+    # print("R = " + SF.getR())
+    # print("R[dBm] = " + SF.getRdBm())
+    # print("Theta = " + SF.getTheta())
 
     try:
         os.chdir(home_dir)
@@ -76,12 +94,16 @@ def main():
     # SF.query("*RST") #Reset to its default configuration
 
     for sfFreq in MassFreq:
-        startFreq = sfFreq[0]
-        finishFreq = sfFreq[1]
+        if (sfFreq[0] > sfFreq[1]):
+            startFreq = sfFreq[1]
+            finishFreq = sfFreq[0]
+        else:
+            startFreq = sfFreq[0]
+            finishFreq = sfFreq[1]
 
         NumSteP = (finishFreq - startFreq) / stepF + 1
         freqMass = np.linspace(startFreq, finishFreq, int(NumSteP))
-        fileName = 'spec_from_{}_{}_{}_{}_{}_{}.dat'.format(time.gmtime().tm_hour, time.gmtime().tm_min,
+        fileName = 'step01_spec_from_{}_{}_{}_{}_{}_{}.dat'.format(time.gmtime().tm_hour, time.gmtime().tm_min,
                                                                      time.gmtime().tm_sec, time.gmtime().tm_mday,
                                                                      time.gmtime().tm_mon, time.gmtime().tm_year)
 
